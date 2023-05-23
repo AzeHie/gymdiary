@@ -3,6 +3,10 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
+const userRoutes = require("./routes/users");
+const workoutProgramRoutes = require("./routes/workoutprograms");
+const HttpError = require("./models/http-error");
+
 const app = express();
 const port = 5000;
 
@@ -16,6 +20,14 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
   next();
+});
+
+app.use("/api/users", userRoutes);
+app.use("/api/workoutprograms", workoutProgramRoutes);
+
+app.use((req, res, next) => {
+  const error = new HttpError("Could not find this route!", 404);
+  return next(error);
 });
 
 app.use((error, req, res, next) => {
