@@ -1,9 +1,17 @@
 const express = require("express");
 const { check } = require("express-validator");
 
-const workoutprogramsControllers = require("../controllers/workoutprograms-controllers");
+const programsControllers = require("../controllers/workoutprograms-controllers");
 const router = express.Router();
 
-// routes here
+router.get("/", programsControllers.getCurrentProgram);
+
+router.get("/previousprograms", programsControllers.getPreviousPrograms);
+
+router.get("/:pid", programsControllers.getProgramById);
+
+router.put("/", programsControllers.editProgram);
+
+router.delete("/:pid", programsControllers.deleteProgram);
 
 module.exports = router;

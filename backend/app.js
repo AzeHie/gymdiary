@@ -4,7 +4,9 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const userRoutes = require("./routes/users");
-const workoutProgramRoutes = require("./routes/workoutprograms");
+const programsRoutes = require("./routes/workoutprograms");
+const workoutsRoutes = require("./routes/workouts");
+const workoutlogsRoutes = require("./routes/workoutlog");
 const HttpError = require("./models/http-error");
 
 const app = express();
@@ -23,7 +25,9 @@ app.use((req, res, next) => {
 });
 
 app.use("/api/users", userRoutes);
-app.use("/api/workoutprograms", workoutProgramRoutes);
+app.use("/api/workoutprograms", programsRoutes);
+app.use("/api/workouts", workoutsRoutes);
+app.use("/api/workoutlogs", workoutlogsRoutes);
 
 app.use((req, res, next) => {
   const error = new HttpError("Could not find this route!", 404);
