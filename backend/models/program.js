@@ -24,8 +24,9 @@ const workoutSchema = mongoose.Schema({
 
 const programSchema = mongoose.Schema({
   programName: { type: String, required: true },
-  workouts: [workoutSchema]
+  workouts: [workoutSchema],
+  owner: { type: mongoose.Types.ObjectId, required: true, ref: 'User' }
 });
 
-module.exports = mongoose.model("workoutprogram", programSchema);
+module.exports = mongoose.model("Program", programSchema);
 

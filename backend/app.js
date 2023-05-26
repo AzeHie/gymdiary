@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
 const userRoutes = require("./routes/users");
-const programsRoutes = require("./routes/workoutprograms");
+const programsRoutes = require("./routes/programs");
 const workoutsRoutes = require("./routes/workouts");
 const workoutlogsRoutes = require("./routes/workoutlog");
 const HttpError = require("./models/http-error");
@@ -22,10 +22,10 @@ app.use((req, res, next) => {
   );
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE");
   next();
-});
+})
 
 app.use("/api/users", userRoutes);
-app.use("/api/workoutprograms", programsRoutes);
+app.use("/api/programs", programsRoutes);
 app.use("/api/workouts", workoutsRoutes);
 app.use("/api/workoutlogs", workoutlogsRoutes);
 
