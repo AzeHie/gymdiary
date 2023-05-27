@@ -6,7 +6,7 @@ const userSchema = mongoose.Schema({
   firstname: { type: String, required: true },
   lastname: { type: String, required: true },
   profilepicture: { type: String, required: true },
-  programs: { type: mongoose.Types.ObjectId, required: true, ref: 'Program' }
+  programs: [{ type: mongoose.Types.ObjectId, required: true, ref: 'Program' }]
 });
 
 module.exports = mongoose.model("User", userSchema);
