@@ -111,9 +111,125 @@ exports.userLogin = async (req, res, next) => {
 };
 
 exports.updateUser = async (req, res, next) => {
-  return res.status(200).json({ message: "updateUser working" });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    const error = new HttpError(
+      "Updating user failed, please check your details and try again",
+      422
+    );
+    return next(error);
+  }
+
+  const { email, firstname, lastname } = req.body;
+
+  try {
+    User.findOneAndUpdate(
+      {
+        _id: req.userData.userId,
+      },
+      {
+        $set: {
+          email: email,
+          firstname: firstname,
+          lastname: lastname,
+        },
+      }
+    );
+  } catch (err) {
+    const error = new HttpError(
+      "Updating the user failed, please try again!",
+      500
+    );
+    return next(error);
+  }
+
+  return res.status(200).json({
+    message: "User updated successfully!",
+  });
 };
 
 exports.changePassword = async (req, res, next) => {
-  return res.status(200).json({ message: "changePassword working" });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    // validate new password
+    const error = new HttpError(
+      "Updating the password failed, please try again!",
+      500
+    );
+    return next(error);
+  }
+
+  const { oldPassword, newPassword, confirmPassword } = req.body;
+
+  try {
+    const user = await User.findById(req.userData.userId);
+    if (!user) {
+      const error = new HttpError("User not found!", 404);
+      return next(error);
+    }
+
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (isOldPasswordValid) {
+      const error = new HttpError("Current password is invalid!", 400);
+      return next(error);
+    }
+
+    if (newPassword !== confirmPassword) {
+      const error = new HttpError(
+        "New password and its confirmation do not match!",
+        400
+      );
+      return next(error);
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    await User.findOneAndUpdate(
+      { _id: req.userData.userId },
+      {
+        $set: {
+          password: hashedPassword,
+        },
+      }
+    );
+  } catch (err) {
+    const error = new HttpError("Updating the password failed!", 500);
+    return next(error);
+  }
+
+  return res.status(200).json({
+    message: "Password updated!"
+  });
+};
+
+exports.changeProfilePicture = async (req, res, next) => {
+  let profilePicture;
+
+  if (!req.file || !req.file.path) {
+    profilePicture = "uploads/images/profile-user.png";
+  } else {
+    profilePicture = req.file.path;
+  }
+
+  try {
+    User.findOneAndUpdate(
+      {
+        _id: req.userData.userId,
+      },
+      {
+        $set: {
+          profilepicture: profilePicture,
+        },
+      }
+    );
+  } catch (err) {
+    const error = new HttpError(
+      "Updating the profile picture failed, please try again!",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(200).json({
+    message: "Profile picture changed!",
+  });
 };

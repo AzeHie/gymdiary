@@ -19,8 +19,18 @@ router.post(
 
 router.post("/login", usersControllers.userLogin);
 
-router.put("/updateuser", usersControllers.updateUser);
+router.put(
+  "/updateuser",
+  [
+    check("email").normalizeEmail().isEmail(),
+    check("firstname").trim().isLength({ min: 3 }),
+    check("lastname").trim().isLength({ min: 3 }),
+  ],
+  usersControllers.updateUser
+);
 
-router.put("/changepassword", usersControllers.changePassword);
+router.put("/changepassword", check("newPassword").isLength({ min: 8 }), usersControllers.changePassword);
+
+router.put("/changeprofilepicture", fileUpload.single("profilepicture"), usersControllers.changeProfilePicture);
 
 module.exports = router;
