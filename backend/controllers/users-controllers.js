@@ -21,6 +21,7 @@ exports.createUser = async (req, res, next) => {
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
+    console.log(err);
     const error = new HttpError("Creating user failed, please try again!", 500);
     return next(error);
   }
