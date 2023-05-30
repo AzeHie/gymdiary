@@ -1,6 +1,5 @@
 require("dotenv").config();
 const usersControllers = require("../users-controllers");
-const mongoose = require("mongoose");
 const User = require("../../models/User");
 const HttpError = require("../../models/http-error");
 
@@ -8,18 +7,6 @@ jest.mock("../../models/User");
 
 
 describe("Users controllers", () => {
-  beforeEach(async () => {
-    await mongoose.connect(
-      "mongodb+srv://aze:" +
-        process.env.MONGO_ATLAS_PW +
-        "@gymdiary.dwn62zx.mongodb.net/?retryWrites=true&w=majority"
-    );
-  });
-
-  afterEach(async () => {
-    await mongoose.connection.close();
-  });
-
   test("createUser: should return status code 201, if user created", async () => {
     User.findOne.mockResolvedValue(null); // simulates the case where user is not found in database
     User.prototype.save.mockResolvedValue({}); // simulates a successful save operation to the database
@@ -69,7 +56,30 @@ describe("Users controllers", () => {
     User.findOne.mockRestore();
   });
 
-  test("createUser: should return status code 500, if some fields missing in req.body", async () => {
-    // code here
+  test("createUser: should return status code 500, if saving the user fails", async () => {
+    User.findOne.mockResolvedValue(null);
+    User.prototype.save.mockRejectedValue(new Error("Mocked save error"));
+
+    const req = {
+      body: {
+        email: "test@test.com",
+        password: "testpassword",
+        firstname: undefined, // should occur an error when saving User to the database
+        lastname: "test",
+      }
+    };
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    };
+    const next = jest.fn();
+
+    await usersControllers.createUser(req, res, next);
+
+    expect(next).toHaveBeenCalledTimes(1);
+    expect(next).toBeCalledWith(new HttpError("Creating user failed, please try again", 500));
+
+    User.findOne.mockRestore();
+    User.prototype.save.mockRestore();
   });
 });
