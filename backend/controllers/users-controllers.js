@@ -82,7 +82,6 @@ exports.userLogin = async (req, res, next) => {
   let isValidPassword = false;
   try {
     isValidPassword = await bcrypt.compare(password, existingUser.password);
-    console.log(isValidPassword);
   } catch (err) {
     const error = new HttpError("Logging in failed, please try again!", 500);
     return next(error);
